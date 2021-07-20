@@ -17,7 +17,7 @@ class FuzzyCMeans:
         self.__c = None  # cluster centers
 
     @property
-    def get_num_clusters(self):
+    def num_clusters(self):
         return self.__num_clusters
 
     @property
