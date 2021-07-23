@@ -45,8 +45,9 @@ class FuzzyCMeans:
 
     def __update_cluster_centers(self, X):
 
-        denominators = self.__U.sum(axis=0)[:, None]
-        centers = self.__U.T.dot(X)
+        U_m = np.power(self.__U, self.__m)
+        denominators = U_m.sum(axis=0)[:, None]
+        centers = U_m.T.dot(X)
         self.__c = centers / denominators
         pass
 
