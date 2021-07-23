@@ -1,1 +1,5 @@
-# A pythonic Implementation of Fuzzy C-means
+# Pythonic Implementations of Cluster Algorithms
+
+### Currently available
+
+* fuzzy c-means
