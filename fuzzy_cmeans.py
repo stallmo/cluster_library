@@ -94,10 +94,10 @@ class FuzzyCMeans:
 
     def predict(self, X):
         """
-        Returns the matrix U (i.e. cluster membership) for points in X.
+        Returns matrix U (i.e. cluster membership) for points in X.
 
-        :param X:
-        :return:
+        :param X: numpy matrix of shape (num_examples, num_features)
+        :return: numpy matrix with fuzzy cluster assignments of shape (num_examples, num_clusters).
         """
 
         if self.__U is None:
