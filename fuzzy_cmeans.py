@@ -22,7 +22,7 @@ class FuzzyCMeans:
 
     @property
     def max_iter(self):
-        return self.__max_iter()
+        return self.__max_iter
 
     @property
     def tol(self):
@@ -73,8 +73,9 @@ class FuzzyCMeans:
         Fits fuzzy c-means to data X.
 
         :param X: 2d numpy array. Contains the training data. Each row is an observation.
-        :param initialization: str. (optional). Specifies how the initial membership assignment is to be performed. Only 'random' is implented yet.
-        :return:
+        :param initialization: str. (optional).
+         Specifies how the initial membership assignment is to be performed. Only 'random' is implented
+        :return: None.
         """
         if not initialization in ['random']:
             raise NotImplementedError
@@ -82,7 +83,7 @@ class FuzzyCMeans:
         if self.__U is None:
             self.__init_membership(X, initialization)
 
-        for iter in range(self.__max_iter):
+        for _iter in range(self.__max_iter):
 
             U_prev = copy.deepcopy(self.__U)  # we'll need that to check termination criterion
             self.__update_cluster_centers(X)
