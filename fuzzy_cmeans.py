@@ -15,6 +15,7 @@ class FuzzyCMeans:
         # going to be set when predict() is called
         self.__U = None  # assignment/ membership matrix
         self.__c = None  # cluster centers
+        self.__iterations = 0
 
     @property
     def num_clusters(self):
@@ -32,6 +33,13 @@ class FuzzyCMeans:
     def centers(self):
         return self.__c
 
+    @property
+    def iterations(self):
+        return self.__iterations
+
+    def set_centers(self, centers):
+        self.__c = centers
+
     def __init_membership(self, X, initialization):
 
         n_rows = X.shape[0]
@@ -40,7 +48,6 @@ class FuzzyCMeans:
         if initialization == 'random':
             self.__U = np.random.rand(n_rows, n_cols)
             self.__U = self.__U / self.__U.sum(axis=1)[:, None]  # make sure each row sums to 1
-
         pass
 
     def __update_cluster_centers(self, X):
@@ -77,14 +84,19 @@ class FuzzyCMeans:
          Specifies how the initial membership assignment is to be performed. Only 'random' is implented
         :return: None.
         """
-        if not initialization in ['random']:
+        if not initialization in ['random', 'federated']:
             raise NotImplementedError
+
+        if initialization == 'federated':
+            assert self.__c is not None, 'For the federated initialization, the global server must first communicate the global cluster centers.'
+            self.__U = self.__calculate_cluster_membership(X)
 
         if self.__U is None:
             self.__init_membership(X, initialization)
 
         for _iter in range(self.__max_iter):
 
+            self.__iterations += 1
             U_prev = copy.deepcopy(self.__U)  # we'll need that to check termination criterion
             self.__update_cluster_centers(X)
             # update membership matrix
