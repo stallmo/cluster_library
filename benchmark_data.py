@@ -42,12 +42,11 @@ class BenchmarkDataLoader:
         category = set_path.split(os.sep)[-2]
         category_ground_truth_dir = self.category_to_gt_dirs.get(category)
 
-        ground_truth_paths = glob(os.path.join(category_ground_truth_dir, '*'))
+        # ground_truth_paths = glob(os.path.join(category_ground_truth_dir, '*'))
+        gt_fname = set_path.split('.')[0] + '-gt.txt'
+        ground_truth_path = os.path.join(category_ground_truth_dir, gt_fname)
 
-        fuzzy_dists = [fuzz.ratio(set_path, gt_path) for gt_path in ground_truth_paths]
-
-        argmax = np.argmax(fuzzy_dists)
-        return ground_truth_paths[argmax]
+        return ground_truth_path
 
     def load_ground_truth_data(self, set_path):
         """
