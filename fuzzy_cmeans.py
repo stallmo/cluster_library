@@ -3,7 +3,6 @@ from scipy.spatial import distance
 
 import copy
 
-
 class FuzzyCMeans:
 
     def __init__(self, num_clusters, m=2, max_iter=1000, tol=0.0001):

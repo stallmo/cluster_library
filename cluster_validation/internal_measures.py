@@ -1,7 +1,7 @@
 from scipy.spatial import distance
 
 
-def within_cluster_sse(X, assignment, centers):
+def within_cluster_sse(X, assignment, centers) -> float:
     """
     Calculates the sum of squared errors between all points and its assigned cluster centers as a measure for cluster cohesion.
 
@@ -13,7 +13,8 @@ def within_cluster_sse(X, assignment, centers):
 
     return sum([distance.cdist(X[assignment == i], center.reshape((1, -1))).sum() for i, center in enumerate(centers)])
 
-def outside_cluster_sse(X, assignment, centers):
+
+def outside_cluster_sse(X, assignment, centers) -> float:
     """
     Calculates the sum of squared errors between all points and the centers of the clusters the point is not assigned to.
     A measure for cluster separation.
