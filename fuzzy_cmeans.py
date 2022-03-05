@@ -80,7 +80,7 @@ class FuzzyCMeans:
 
         :param X: 2d numpy array. Contains the training data. Each row is an observation.
         :param initialization: str. (optional).
-         Specifies how the initial membership assignment is to be performed. Only 'random' is implented
+         Specifies how the initial membership assignment is to be performed. Only 'random' is implemented
         :return: None.
         """
         if not initialization in ['random', 'federated']:

@@ -43,9 +43,12 @@ class BenchmarkDataLoader:
         category_ground_truth_dir = self.category_to_gt_dirs.get(category)
 
         # ground_truth_paths = glob(os.path.join(category_ground_truth_dir, '*'))
-        gt_fname = set_path.split('.')[0] + '-gt.txt'
-        ground_truth_path = os.path.join(category_ground_truth_dir, gt_fname)
+        gt_fname = set_path.split('/')[-1].split('.')[0] + '-gt.txt'
 
+        ground_truth_path = os.path.join(category_ground_truth_dir, gt_fname)
+        print(category_ground_truth_dir)
+        print(gt_fname)
+        print(ground_truth_path)
         return ground_truth_path
 
     def load_ground_truth_data(self, set_path):
@@ -59,11 +62,18 @@ class BenchmarkDataLoader:
 
         return np.loadtxt(gt_path)
 
-    def load_data(self, path):
+    def load_data(self, path, normalize=False):
         """
         Load data stored under <path> and return as numpy array.
 
         :param path: str. Path to a (cluster) dataset.
+        :param normalize: bool. Specifies whether data X should be normalized before returning.
+            According to: (X - X.min()) / (X.max() - X.min())
         :return: np.array.
         """
-        return np.loadtxt(path)
+        X = np.loadtxt(path)
+
+        if normalize:
+            X = (X - X.min()) / (X.max() - X.min())
+
+        return X
