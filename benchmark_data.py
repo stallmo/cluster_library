@@ -46,12 +46,53 @@ class BenchmarkDataLoader:
         gt_fname = set_path.split('/')[-1].split('.')[0] + '-gt.txt'
 
         ground_truth_path = os.path.join(category_ground_truth_dir, gt_fname)
-        print(category_ground_truth_dir)
-        print(gt_fname)
-        print(ground_truth_path)
+
         return ground_truth_path
 
-    def load_ground_truth_data(self, set_path):
+    def get_partitions_path(self, set_path):
+        """
+        Some cluster data sets come with ground truth partitions.
+        This function finds the path to the ground truth partitions corresponding to data under <set_path>.
+
+        :param set_path: str. Path to a cluster dataset.
+        :return: str. Path to ground truth partition corresponding to dataset stored under <set_path>.
+        """
+
+        category = set_path.split(os.sep)[-2]
+        category_ground_truth_dir = self.category_to_gt_dirs.get(category)
+
+        # ground_truth_paths = glob(os.path.join(category_ground_truth_dir, '*'))
+        part_fname = set_path.split('/')[-1].split('.')[0] + '-gt.pa'
+        partitions_path = os.path.join(category_ground_truth_dir, part_fname)
+
+        return partitions_path
+
+    def load_ground_truth_partitions(self, set_path):
+        """
+        This function loads the ground truth partitions corresponding to data stored under <set_path>.
+         Returns a 1D numpy array.
+
+
+        :param set_path: str. Path to a cluster dataset.
+        :return: np.array. 1D array with partition indices.
+        """
+        if not 'g2' in set_path:
+            raise NotImplementedError
+
+        partition_path = self.get_partitions_path(set_path)
+        with open(partition_path) as f:
+            all_pa_lines = f.readlines()
+
+        # the first for lines are text; we start counting at zero while the file starts at 1
+        partitions = np.array([int(l.strip()) - 1 for l in all_pa_lines[4:]]).reshape(-1, 1)
+
+        # Minimal check to make sure we have correct cluster indices
+        if any(partitions < 0):
+            raise ValueError
+
+        return partitions
+
+    def load_ground_truth_data(self, set_path, normalize=False):
         """
         This function loads the ground truth data corresponding to data stored under <set_path> and returns it as numpy array.
 
@@ -59,8 +100,12 @@ class BenchmarkDataLoader:
         :return: np.array. Numpy array with ground truth data corresponding to data stored under <set_path>.
         """
         gt_path = self.get_ground_truth_path(set_path)
+        X = np.loadtxt(gt_path)
 
-        return np.loadtxt(gt_path)
+        if normalize:
+            X = (X - X.min()) / (X.max() - X.min())
+
+        return X
 
     def load_data(self, path, normalize=False):
         """

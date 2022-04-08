@@ -3,6 +3,7 @@ from scipy.spatial import distance
 
 import copy
 
+
 class FuzzyCMeans:
 
     def __init__(self, num_clusters, m=2, max_iter=1000, tol=0.0001):
@@ -38,6 +39,14 @@ class FuzzyCMeans:
 
     def set_centers(self, centers):
         self.__c = centers
+
+    def __init_centers(self, X, initialization):
+
+        data_dim = X.shape[1]
+        if initialization == 'random':
+            self.__c = np.random.randint(low=400, high=700, size=((self.__num_clusters, data_dim)))
+
+        pass
 
     def __init_membership(self, X, initialization):
 
@@ -91,7 +100,9 @@ class FuzzyCMeans:
             self.__U = self.__calculate_cluster_membership(X)
 
         if self.__U is None:
-            self.__init_membership(X, initialization)
+            self.__init_centers(X, initialization)
+            self.__U = self.__calculate_cluster_membership(X)
+            # self.__init_membership(X, initialization)
 
         for _iter in range(self.__max_iter):
 
