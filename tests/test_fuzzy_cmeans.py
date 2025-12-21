@@ -1,7 +1,7 @@
 # python
 import numpy as np
 import pytest
-from fuzzy_cmeans import FuzzyCMeans
+from cluster_library import FuzzyCMeans
 
 
 def test_init_properties():
