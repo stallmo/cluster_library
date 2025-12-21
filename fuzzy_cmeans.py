@@ -63,8 +63,9 @@ class FuzzyCMeans:
                 # Calculate minimal distance of every point to already chosen centers
                 dist_to_centers = distance.cdist(X, np.array(self.__c)).min(axis=1)
 
-                # Probability distribution based on distances
-                probabilities = dist_to_centers / dist_to_centers.sum()
+                # Probability distribution based on squared distances (k-means++ style)
+                dist_sq = dist_to_centers ** 2
+                probabilities = dist_sq / dist_sq.sum()
 
                 # Choose next center based on probability distribution
                 next_center = X[np.random.choice(X.shape[0], p=probabilities)]
