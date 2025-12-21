@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cluster-library"
+version = "0.1.0"
+description = "Compact implementations of cluster algorithms"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = ["numpy", "scipy"]
+authors = [{ name = "Your Name", email = "you@example.com" }]
+
+[tool.setuptools.packages.find]
+where = ["src"]
