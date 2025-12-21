@@ -9,7 +9,7 @@ description = "Compact implementations of cluster algorithms"
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = ["numpy>=2.0.2", "scipy>=1.13.1"]
-authors = [{ name = "Mo Sta", email = "mo.sta@web.de" }]
+authors = [{ name = "stallmo" }]
 
 [tool.setuptools.packages.find]
 where = ["src"]
