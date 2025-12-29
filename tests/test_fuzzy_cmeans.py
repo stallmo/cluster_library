@@ -129,3 +129,33 @@ def test_predict_after_fit_consistent_membership():
     assert np.allclose(U1, U2)
     assert U1.shape == (X.shape[0], 2)
     assert np.allclose(U1.sum(axis=1), 1.0, atol=1e-6)
+
+
+def test_exact_match_assigns_hard_membership():
+    # Two 2-D centers
+    centers = np.array([[0.0, 0.0], [1.0, 1.0]])
+    # First sample exactly matches center 0, second is between centers
+    X = np.array([
+        [0.0, 0.0],   # exact match -> should be hard assigned to center 0
+        [0.5, 0.5],   # fuzzy assignment between centers
+    ])
+
+    fcm = FuzzyCMeans(num_clusters=2, m=2.0)
+    fcm.set_centers(centers)
+
+    # Call the name-mangled private method
+    U = fcm._FuzzyCMeans__calculate_cluster_membership(X)
+
+    # Basic shape checks
+    assert U.shape == (2, 2)
+
+    # Exact match row: hard assignment to center 0
+    assert U[0, 0] == pytest.approx(1.0)
+    assert U[0, 1] == pytest.approx(0.0)
+
+    # Other row: values in [0,1] and sum to 1
+    assert np.all(U[1] >= 0.0) and np.all(U[1] <= 1.0)
+    assert U[1].sum() == pytest.approx(1.0)
+
+    # No NaNs or infinities anywhere
+    assert np.all(np.isfinite(U))
