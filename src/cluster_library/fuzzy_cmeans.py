@@ -96,23 +96,47 @@ class FuzzyCMeans:
     def __calculate_cluster_membership(self, X):
 
         power = 2.0 / (self.__m - 1.0)
+
+        # pairwise distances: shape (n_samples, n_clusters)
         dist_to_centers = distance.cdist(X, self.__c)
 
-        # Avoid division by zero
-        epsilon = 1e-10
+        # Prevent log(0); keep tiny positive floor
+        epsilon = 1e-12
         dist_to_centers = np.maximum(dist_to_centers, epsilon)
 
-        U_denom = np.zeros((X.shape[0], self.__num_clusters))
+        n_samples = X.shape[0]
+        n_clusters = self.__num_clusters
 
-        # TODO: Optimize this bit
-        for j in range(self.__num_clusters):
-            cj_dists = np.repeat(dist_to_centers[:, j], self.__num_clusters).reshape(X.shape[0], -1)
-            dists_normalized = np.power(cj_dists / dist_to_centers, power)
-            U_denom[:, j] = dists_normalized.sum(axis=1)
+        # If a sample is (nearly) exactly at a center, assign hard membership to that center
+        tol_assign = 1e-12
+        exact_match = dist_to_centers <= tol_assign
+        membership = np.zeros((n_samples, n_clusters), dtype=float)
 
-        membership_matrix = 1.0 / U_denom
+        # Precompute logs for stable ratios
+        log_dist = np.log(dist_to_centers)  # safe because of epsilon
 
-        return membership_matrix
+        # For each center j compute log-terms: power * (log_dist[:, j] - log_dist[:, k]) for all k
+        # Then use log-sum-exp per-row to compute sum_k exp(log_terms) robustly.
+        for j in range(n_clusters):
+            # log_terms shape: (n_samples, n_clusters)
+            log_terms = power * (log_dist[:, j][:, None] - log_dist)
+            # row-wise stability
+            row_max = np.max(log_terms, axis=1)
+            sum_exp = np.exp(log_terms - row_max[:, None]).sum(axis=1)
+            logsumexp = row_max + np.log(sum_exp)
+            # membership_ij = 1 / sum_k (ratio^power) = exp(-logsumexp)
+            membership[:, j] = np.exp(-logsumexp)
+
+        # Apply exact-match hard assignments (overrides tiny numerical calculation)
+        if np.any(exact_match):
+            rows_with_match = np.where(np.any(exact_match, axis=1))[0]
+            for i in rows_with_match:
+                # choose the first matching center (or argmin)
+                j = int(np.argmin(dist_to_centers[i]))
+                membership[i, :] = 0.0
+                membership[i, j] = 1.0
+
+        return membership
 
     def fit(self, X, initialization='random'):
         """
